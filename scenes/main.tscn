@@ -17,10 +17,11 @@ script = ExtResource("2_tbgi4")
 
 [node name="Shark" parent="SpriteArea" instance=ExtResource("2_sugp2")]
 
-[node name="CountdownTimer" type="Timer" parent="SpriteArea"]
+[node name="Timer" type="Timer" parent="SpriteArea"]
+
+[node name="DelayTimer" type="Timer" parent="SpriteArea"]
 
 [node name="SystemNode" type="Node2D" parent="."]
 script = ExtResource("2_0wfyh")
 
 [connection signal="ground_level" from="." to="SpriteArea" method="_on_main_ground_level"]
-[connection signal="timeout" from="SpriteArea/CountdownTimer" to="SpriteArea" method="_on_countdown_timer_timeout"]

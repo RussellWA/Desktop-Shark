@@ -13,12 +13,10 @@ var mouse_velocity = Vector2.ZERO
 var velocity = Vector2.ZERO
 var is_on_ground = true
 var ground_y
-
-@export var walk_speed = 200
-
+ 
 # Shark states
 enum State { IDLE, FLUNG, MOVING }
-var current_state = State.MOVING
+var current_state = State.IDLE
 
 # Timer states
 @onready var timer: Timer = $Timer
@@ -36,9 +34,10 @@ func _ready():
 	timer.one_shot = true
 	timer.start()
 	
-	delay_timer.wait_time = 5
+	delay_timer.wait_time = 2
 	delay_timer.one_shot = true
-		
+	#delay_timer.start()
+	
 	timer.timeout.connect(_on_timer_timeout)
 	delay_timer.timeout.connect(_on_delay_timer_timeout)
 	
@@ -48,10 +47,12 @@ func _process(delta):
 		timer.stop()
 		print("Timer stopped due to dragging and falling.")
 	elif !is_dragging and timer.is_stopped() and is_on_ground:
-		timer.start()
-		print("Timer restarted after dragging stopped.")
-		#delay_timer.start()
-		#print("Delay Timer started after hitting ground.")
+		if not delay_timer.is_stopped(): 
+			pass
+		else: 
+			timer_state = TimerState.WAITING
+			delay_timer.start()
+			print("Delay timer started")
 	
 	match current_state:
 		State.IDLE:
@@ -74,10 +75,8 @@ func _process(delta):
 func _input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			print("clicked")
 			var mouse_pos = get_global_mouse_position()
 			if shark.get_rect().has_point(shark.to_local(mouse_pos)):
-				print("start drag")
 				is_dragging = true
 				current_state = State.IDLE
 				
@@ -111,9 +110,7 @@ func _input(event):
 		
 		# Calculate mouse velocity (difference in mouse position per frame)
 		mouse_velocity = (current_mouse_position - previous_mouse_position) / get_process_delta_time()
-		
 		previous_mouse_position = current_mouse_position
-		
 		is_on_ground = false
 
 func apply_physics(delta):
@@ -166,9 +163,14 @@ func _on_timer_timeout():
 		timer.start()  # Restart the timer
 
 func _on_delay_timer_timeout():
-	delay_timer.stop()
-	print("Timer restarted after dragging stopped.")
-	timer.start()
+	if timer.is_stopped() and is_on_ground and not is_dragging:
+		timer_state = TimerState.RUNNING
+		timer.start()
+		print("Timer restarted after dragging stopped.")
+	#else:
+		#timer_state = TimerState.RUNNING
+		#timer.start()
+		#print("Start Timer.")
 
 func _on_main_ground_level(pos: Variant) -> void:
 	ground_y = pos

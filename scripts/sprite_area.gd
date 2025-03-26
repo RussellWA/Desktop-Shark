@@ -37,6 +37,7 @@ func _ready():
 	timer.start()
 	
 	delay_timer.wait_time = 5
+	delay_timer.one_shot = true
 		
 	timer.timeout.connect(_on_timer_timeout)
 	delay_timer.timeout.connect(_on_delay_timer_timeout)
@@ -60,9 +61,7 @@ func _process(delta):
 		
 		State.FLUNG:
 			apply_physics(delta)
-			#print("this")
 			if abs(velocity.x) < 0.1:
-				#print("idle")
 				current_state = State.IDLE
 		
 		State.MOVING:
@@ -89,15 +88,21 @@ func _input(event):
 				previous_mouse_position = get_global_mouse_position()
 		elif event.button_index == MOUSE_BUTTON_LEFT and !event.pressed:
 			if is_dragging:
-				print('fling')
 				is_dragging = false
 				# Apply fling velocity
 				velocity = mouse_velocity
-				print(velocity)
+				
+				# velocity.x has to be > 0 for it to not stick when drag release
+				if velocity.x == 0:
+					velocity.x = 1
 				current_state = State.FLUNG
 		else:
 			if is_dragging:
 				velocity = mouse_velocity
+				
+			# velocity.x has to be > 0 for it to not stick when drag release
+			if velocity.x == 0:
+					velocity.x = 1
 			is_dragging = false
 			
 	elif event is InputEventMouseMotion and is_dragging:
@@ -106,17 +111,15 @@ func _input(event):
 		
 		# Calculate mouse velocity (difference in mouse position per frame)
 		mouse_velocity = (current_mouse_position - previous_mouse_position) / get_process_delta_time()
+		
 		previous_mouse_position = current_mouse_position
 		
 		is_on_ground = false
 
 func apply_physics(delta):
-	#print("apply physics")
 	velocity.y += gravity * delta
 	velocity.x *= air_friction
 	shark.global_position += velocity * delta
-	
-	#print('y: ', velocity.y, ' | x: ', velocity.x, ' | pos: ', shark.global_position)
 	
 	var viewport_rect = get_viewport_rect()
 	var left_edge = viewport_rect.position.x
@@ -127,7 +130,6 @@ func apply_physics(delta):
 	shark.global_position.x = clamp(shark.global_position.x, left_edge, right_edge - shark_size.x)
 	
 	if shark.global_position.y >= ground_y:
-		#print("on ground")
 		is_on_ground = true
 		shark.global_position.y = ground_y
 		if abs(velocity.x) > 0.1:  # Small threshold to stop jittering
@@ -143,7 +145,7 @@ func start_moving(delta):
 	var shark_width = shark.texture.get_width()
 	shark.global_position.x += speed * direction * delta
 	
-	
+	# Shark width needed so it doesnt go off the right edge
 	if shark.global_position.x + shark_width >= right_edge:
 		direction = -1
 	elif shark.global_position.x <= left_edge:
@@ -164,6 +166,7 @@ func _on_timer_timeout():
 		timer.start()  # Restart the timer
 
 func _on_delay_timer_timeout():
+	delay_timer.stop()
 	print("Timer restarted after dragging stopped.")
 	timer.start()
 

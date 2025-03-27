@@ -1,0 +1,36 @@
+[gd_scene load_steps=4 format=3 uid="uid://ddfx53xstrq0b"]
+
+[ext_resource type="Texture2D" uid="uid://dwkix1vx7mcau" path="res://art/ui/InventoryRect.png" id="1_edpyj"]
+[ext_resource type="Script" uid="uid://cc44yjcd6ch0i" path="res://scripts/shark_gui.gd" id="1_swurp"]
+[ext_resource type="Texture2D" uid="uid://dp4jpxlh7lr62" path="res://art/ui/UI Recolor.png" id="2_tlv6y"]
+
+[node name="SharkGui" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 0.515
+script = ExtResource("1_swurp")
+
+[node name="NinePatchRect" type="NinePatchRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+offset_right = 375.0
+offset_bottom = 477.0
+texture = ExtResource("1_edpyj")
+patch_margin_left = 6
+patch_margin_top = 6
+patch_margin_right = 6
+patch_margin_bottom = 6
+
+[node name="GridContainer" type="GridContainer" parent="NinePatchRect"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+columns = 2
+
+[node name="ScaleDownBtn" type="Button" parent="NinePatchRect/GridContainer"]
+layout_mode = 2
+icon = ExtResource("2_tlv6y")
+
+[node name="ScaleUpBtn" type="Button" parent="NinePatchRect/GridContainer"]
+layout_mode = 2
+icon = ExtResource("2_tlv6y")

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dp4jpxlh7lr62"
-path="res://.godot/imported/UI Recolor.png-f5585b446cd6c8eb8e5a990c1be6154d.ctex"
+path="res://.godot/imported/UI Recolor.png-712578c3d6e6192e6ecb439fb95ced33.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://art/UI Recolor.png"
-dest_files=["res://.godot/imported/UI Recolor.png-f5585b446cd6c8eb8e5a990c1be6154d.ctex"]
+source_file="res://art/ui/UI Recolor.png"
+dest_files=["res://.godot/imported/UI Recolor.png-712578c3d6e6192e6ecb439fb95ced33.ctex"]
 
 [params]
 

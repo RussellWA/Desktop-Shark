@@ -18,6 +18,7 @@ var velocity: Vector2 = Vector2.ZERO
 var is_on_ground: bool = true
 var ground_y: int
 var taskbar_height: int
+var screen_height: int
  
 # Shark states
 enum State { IDLE, FLUNG, MOVING }
@@ -201,21 +202,35 @@ func _on_delay_timer_timeout():
 		timer.start()
 		print("Start Timer")
 
-func _on_main_ground_level(pos: Variant, tb_height: int) -> void:
+func _on_main_ground_level(pos: Variant, tb_height: int, sc_height: int) -> void:
 	ground_y = pos
 	taskbar_height = tb_height
+	screen_height = sc_height
 
 func get_direction():
 	return rng.randi_range(0, 1) * 2 - 1
 	
 func _on_shark_gui_send_scale(size: int) -> void:
+	var original_shark_size = shark.texture.get_size() * shark.scale
 	var scale_factor = 0.1 # 10% scale change
-	print("before ", shark.global_position.y, " | ", shark.scale.y)
+	
+	var window_height = get_viewport().get_visible_rect().size.y
+	var taskbar_y = window_height - taskbar_height
+	
+	#print("before ", shark.global_position.y)
 	if size == -1:
 		shark.scale *= (1 - scale_factor)
 	elif size == 1:
 		shark.scale *= (1 + scale_factor)
 	
-	shark.global_position.x = shark.global_position.x
-	shark.global_position.y = ground_y - (shark.texture.get_height() * shark.scale.y)
+	var new_shark_size = shark.texture.get_size() * shark.scale
+	
+	#print("new shark scale ", new_shark_size)
+	
+	var new_ground_y = screen_height - taskbar_height - new_shark_size.y
+	
+	ground_y = new_ground_y
+	
+	if current_state != State.FLUNG:
+		shark.global_position.y = new_ground_y
 	

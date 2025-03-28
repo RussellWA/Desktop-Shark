@@ -1,6 +1,6 @@
 extends Node2D
 
-signal ground_level(pos, tb_height)
+signal ground_level(pos, tb_height, sc_height)
 
 @onready var shark = $SpriteArea/Shark
 
@@ -21,9 +21,7 @@ func shark_init_pos():
 	var y_pos = screen_size.y - taskbar_height - shark_size.y
 	shark.global_position = Vector2(x_pos, y_pos)
 	
-	print("init pos ", shark.global_position)
-	
-	ground_level.emit(y_pos, taskbar_height)
+	ground_level.emit(y_pos, taskbar_height, screen_size.y)
 
 func get_taskbar_height():
 	var height = DisplayServer.screen_get_size().y - DisplayServer.screen_get_usable_rect().size.y

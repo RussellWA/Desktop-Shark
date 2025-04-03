@@ -1,11 +1,12 @@
-[gd_scene load_steps=7 format=3 uid="uid://bl2oop3evwqr"]
+[gd_scene load_steps=8 format=3 uid="uid://bl2oop3evwqr"]
 
 [ext_resource type="Script" uid="uid://jbsv0r85sjg8" path="res://scripts/main.gd" id="1_jyhfs"]
 [ext_resource type="Script" uid="uid://pofk5tf3365n" path="res://scripts/SystemNode.cs" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://b0ejeoy3k5i2f" path="res://scenes/shark.tscn" id="2_sugp2"]
 [ext_resource type="Script" uid="uid://brl0aehyue5u5" path="res://scripts/sprite_area.gd" id="2_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://ddfx53xstrq0b" path="res://scenes/shark_gui.tscn" id="5_tbgi4"]
-[ext_resource type="Script" uid="uid://db6sbs1pcxicd" path="res://scripts/voice_recog.gd" id="6_tefeu"]
+[ext_resource type="Script" uid="uid://db6sbs1pcxicd" path="res://scripts/voice_input.gd" id="6_tefeu"]
+[ext_resource type="Script" uid="uid://cfh83sok0db30" path="res://scripts/SpeechRecognition.cs" id="7_o6xl0"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_jyhfs")
@@ -40,8 +41,11 @@ offset_bottom = 238.5
 grow_horizontal = 0
 grow_vertical = 2
 
-[node name="VoiceRecog" type="Node" parent="."]
+[node name="VoiceInput" type="Node" parent="."]
 script = ExtResource("6_tefeu")
+
+[node name="SpeechRecognition" type="Node" parent="."]
+script = ExtResource("7_o6xl0")
 
 [connection signal="ground_level" from="." to="SpriteArea" method="_on_main_ground_level"]
 [connection signal="send_scale" from="CanvasLayer/SharkGui" to="SpriteArea" method="_on_shark_gui_send_scale"]

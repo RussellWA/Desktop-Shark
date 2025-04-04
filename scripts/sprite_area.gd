@@ -30,6 +30,11 @@ var current_state = State.IDLE
 enum TimerState { RUNNING, WAITING }
 var timer_state = TimerState.WAITING
 
+# Petting
+@export var pet_distance_threshold: float = 200.0  # Max distance for petting/hitting
+@export var pet_speed_threshold: float = 200.0  # Speed below this = petting, above = hitting
+var last_state: String = ""
+
 var rng = RandomNumberGenerator.new()
 
 func _ready():
@@ -46,6 +51,26 @@ func _ready():
 	
 
 func _process(delta):
+	
+	var mouse_pos = get_global_mouse_position()
+	var mouse_sprite_distance = abs(mouse_pos.y - shark.global_position.y)
+	
+	#var petting_velocity = (mouse_pos - last_mouse_pos).length() / delta
+	var petting_velocity = Input.get_last_mouse_velocity()
+	var isHover: bool = shark.get_rect().has_point(shark.to_local(mouse_pos))
+	var new_state: String = "=="  # Default to no interaction
+	
+	#if mouse_sprite_distance <= pet_distance_threshold:
+	if isHover:
+		if petting_velocity.length() > pet_speed_threshold:
+			new_state = "hit"
+		else:
+			new_state = "pet"
+	
+	if new_state != last_state:
+		print(new_state)
+		last_state = new_state  # Update last state
+	
 	if is_dragging and not is_on_ground:
 		if not timer.is_stopped():
 			timer.stop()
@@ -209,7 +234,7 @@ func _on_main_ground_level(pos: Variant, tb_height: int, sc_height: int) -> void
 
 func get_direction():
 	return rng.randi_range(0, 1) * 2 - 1
-	
+
 func _on_shark_gui_send_scale(size: int) -> void:
 	var original_shark_size = shark.texture.get_size() * shark.scale
 	var scale_factor = 0.1 # 10% scale change

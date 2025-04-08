@@ -23,6 +23,8 @@ script = ExtResource("2_tbgi4")
 
 [node name="DelayTimer" type="Timer" parent="SpriteArea"]
 
+[node name="PettingTimer" type="Timer" parent="SpriteArea"]
+
 [node name="SystemNode" type="Node2D" parent="."]
 script = ExtResource("2_0wfyh")
 

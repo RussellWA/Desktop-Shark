@@ -31,7 +31,11 @@ enum TimerState { RUNNING, WAITING }
 var timer_state = TimerState.WAITING
 
 # Petting
-
+var last_velocity = Vector2.ZERO
+var was_hovering_last_frame = false
+var petting_count = 0
+var petting_speed = 0
+@onready var petting_timer: Timer = $PettingTimer
 
 # Other
 var rng = RandomNumberGenerator.new()
@@ -45,19 +49,28 @@ func _ready():
 	delay_timer.one_shot = true
 	delay_timer.start()
 	
+	petting_timer.wait_time = 1
+	petting_timer.one_shot = true
+	
 	timer.timeout.connect(_on_timer_timeout)
 	delay_timer.timeout.connect(_on_delay_timer_timeout)
-	
+	petting_timer.timeout.connect(_on_petting_timer_timeout)
 
 func _process(delta):
+	
+	var is_hovering_now = shark.is_hovered()
+	if is_hovering_now and not was_hovering_last_frame and not is_dragging:
+		check_interaction(last_velocity)
+	was_hovering_last_frame = is_hovering_now
+	
 	if is_dragging and not is_on_ground:
 		if not timer.is_stopped():
 			timer.stop()
-			print("Timer stopped due to dragging and falling")
+			#print("Timer stopped due to dragging and falling")
 
 		elif not delay_timer.is_stopped():
 			delay_timer.stop()
-			print("Delay Timer stopped due to dragging and falling")
+			#print("Delay Timer stopped due to dragging and falling")
 
 	elif !is_dragging and timer.is_stopped() and is_on_ground:
 		if not delay_timer.is_stopped(): 
@@ -66,7 +79,7 @@ func _process(delta):
 		else: 
 			timer_state = TimerState.WAITING
 			delay_timer.start()
-			print("Delay timer started")
+			#print("Delay timer started")
 	
 	match current_state:
 		State.IDLE:
@@ -80,11 +93,12 @@ func _process(delta):
 				current_state = State.IDLE
 		
 		State.MOVING:
-			if timer_state == TimerState.WAITING or is_dragging:
-				current_state = State.IDLE
-			else:
-				apply_physics(delta) 
-				start_moving(delta)
+			#if timer_state == TimerState.WAITING or is_dragging:
+				#current_state = State.IDLE
+			#else:
+				#apply_physics(delta) 
+				#start_moving(delta)
+			pass
 
 func _input(event):
 	if event is InputEventMouseButton:
@@ -127,6 +141,9 @@ func _input(event):
 		mouse_velocity = (current_mouse_position - previous_mouse_position) / get_process_delta_time()
 		previous_mouse_position = current_mouse_position
 		is_on_ground = false
+	
+	elif event is InputEventMouseMotion and !is_dragging:
+		last_velocity = event.velocity
 
 func apply_physics(delta):
 	velocity.y += gravity * delta
@@ -170,7 +187,7 @@ func start_moving(delta):
 func _on_timer_timeout():
 	if timer_state == TimerState.RUNNING:
 		# Transition to waiting state
-		print("Timer completed. Entering wait state...")
+		#print("Timer completed. Entering wait state...")
 		timer_state = TimerState.WAITING
 		
 		var duration = rng.randf_range(8,13)
@@ -182,7 +199,7 @@ func _on_timer_timeout():
 	
 	elif timer_state == TimerState.WAITING:
 		# Transition back to running state
-		print("Wait time completed. Restarting timer...")
+		#print("Wait time completed. Restarting timer...")
 		timer_state = TimerState.RUNNING
 		
 		var duration = rng.randf_range(2,5) 
@@ -197,7 +214,7 @@ func _on_delay_timer_timeout():
 		timer_state = TimerState.RUNNING
 		direction = get_direction()
 		timer.start()
-		print("Timer restarted after dragging stopped")
+		#print("Timer restarted after dragging stopped")
 
 	#else:
 		#timer_state = TimerState.RUNNING
@@ -213,4 +230,25 @@ func _on_main_ground_level(pos: Variant, tb_height: int, sc_height: int) -> void
 
 func get_direction():
 	return rng.randi_range(0, 1) * 2 - 1
+
+func check_interaction(velocity: Vector2):
+	petting_speed += velocity.length()
+	petting_count += 1
+	print("speed ", petting_speed)
 	
+	if petting_count == 1 and not is_dragging:
+		petting_timer.start()
+	elif petting_count == 2 and not is_dragging:
+		petting_timer.stop()
+		petting_count = 0
+		if (petting_speed / 2) > 80:
+			print("hit")
+		elif (petting_speed / 2) > 0:
+			print("pet")
+		print("avg ", petting_speed / 2)
+		petting_speed = 0
+		
+
+func _on_petting_timer_timeout():
+	petting_count = 0;
+	#print("restart petting")

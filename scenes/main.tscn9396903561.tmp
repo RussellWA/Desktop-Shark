@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://bl2oop3evwqr"]
+[gd_scene load_steps=9 format=3 uid="uid://bl2oop3evwqr"]
 
 [ext_resource type="Script" uid="uid://jbsv0r85sjg8" path="res://scripts/main.gd" id="1_jyhfs"]
 [ext_resource type="Script" uid="uid://pofk5tf3365n" path="res://scripts/SystemNode.cs" id="2_0wfyh"]
+[ext_resource type="PackedScene" uid="uid://b0ejeoy3k5i2f" path="res://scenes/shark.tscn" id="2_sugp2"]
 [ext_resource type="Script" uid="uid://brl0aehyue5u5" path="res://scripts/sprite_area.gd" id="2_tbgi4"]
 [ext_resource type="PackedScene" uid="uid://drag4pkgq4eou" path="res://scenes/shark_animated.tscn" id="4_tipki"]
 [ext_resource type="PackedScene" uid="uid://ddfx53xstrq0b" path="res://scenes/shark_gui.tscn" id="5_tbgi4"]
@@ -16,6 +17,9 @@ metadata/_edit_vertical_guides_ = [64.0]
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("2_tbgi4")
+
+[node name="Shark" parent="SpriteArea" instance=ExtResource("2_sugp2")]
+visible = false
 
 [node name="SharkAnimated" parent="SpriteArea" instance=ExtResource("4_tipki")]
 
@@ -49,3 +53,4 @@ script = ExtResource("6_tefeu")
 script = ExtResource("7_o6xl0")
 
 [connection signal="ground_level" from="." to="SpriteArea" method="_on_main_ground_level"]
+[connection signal="send_scale" from="CanvasLayer/SharkGui" to="SpriteArea" method="_on_shark_gui_send_scale"]

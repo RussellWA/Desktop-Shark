@@ -1,0 +1,53 @@
+[gd_scene load_steps=9 format=3 uid="uid://drag4pkgq4eou"]
+
+[ext_resource type="Texture2D" uid="uid://dfvgqbp5bxmlf" path="res://art/shark/Shark Idle no blinking 1 px.png" id="1_0gxex"]
+[ext_resource type="Script" uid="uid://dui2osk7djepy" path="res://scripts/shark_animated.gd" id="2_oa8fu"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oa8fu"]
+atlas = ExtResource("1_0gxex")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d0ebm"]
+atlas = ExtResource("1_0gxex")
+region = Rect2(0, 33, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uk1v7"]
+atlas = ExtResource("1_0gxex")
+region = Rect2(0, 66, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tcdwe"]
+atlas = ExtResource("1_0gxex")
+region = Rect2(0, 99, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_npffi"]
+atlas = ExtResource("1_0gxex")
+region = Rect2(0, 132, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hom0q"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oa8fu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d0ebm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uk1v7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tcdwe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_npffi")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[node name="SharkAnimated" type="AnimatedSprite2D"]
+sprite_frames = SubResource("SpriteFrames_hom0q")
+animation = &"idle"
+offset = Vector2(16, 16)
+script = ExtResource("2_oa8fu")

@@ -1,7 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://b0ejeoy3k5i2f"]
-
-[ext_resource type="Texture2D" uid="uid://ch6ugjt6itdyq" path="res://icon.svg" id="1_8l5qy"]
-
-[node name="Shark" type="Sprite2D"]
-texture = ExtResource("1_8l5qy")
-offset = Vector2(64, 64)

@@ -1,6 +1,6 @@
 extends Control
 
-@onready var shark = $Shark
+@onready var shark = $SharkAnimated
 
 # Drag and Fling
 var is_dragging = false
@@ -31,10 +31,9 @@ enum TimerState { RUNNING, WAITING }
 var timer_state = TimerState.WAITING
 
 # Petting
-@export var pet_distance_threshold: float = 200.0  # Max distance for petting/hitting
-@export var pet_speed_threshold: float = 200.0  # Speed below this = petting, above = hitting
-var last_state: String = ""
 
+
+# Other
 var rng = RandomNumberGenerator.new()
 
 func _ready():
@@ -51,26 +50,6 @@ func _ready():
 	
 
 func _process(delta):
-	
-	var mouse_pos = get_global_mouse_position()
-	var mouse_sprite_distance = abs(mouse_pos.y - shark.global_position.y)
-	
-	#var petting_velocity = (mouse_pos - last_mouse_pos).length() / delta
-	var petting_velocity = Input.get_last_mouse_velocity()
-	var isHover: bool = shark.get_rect().has_point(shark.to_local(mouse_pos))
-	var new_state: String = "=="  # Default to no interaction
-	
-	#if mouse_sprite_distance <= pet_distance_threshold:
-	if isHover:
-		if petting_velocity.length() > pet_speed_threshold:
-			new_state = "hit"
-		else:
-			new_state = "pet"
-	
-	if new_state != last_state:
-		print(new_state)
-		last_state = new_state  # Update last state
-	
 	if is_dragging and not is_on_ground:
 		if not timer.is_stopped():
 			timer.stop()
@@ -111,7 +90,7 @@ func _input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			var mouse_pos = get_global_mouse_position()
-			if shark.get_rect().has_point(shark.to_local(mouse_pos)):
+			if shark.is_hovered():
 				is_dragging = true
 				current_state = State.IDLE
 				
@@ -159,7 +138,7 @@ func apply_physics(delta):
 	var right_edge = viewport_rect.position.x + viewport_rect.size.x
 	
 	# Clamp the position to the screen edges
-	var shark_size = shark.texture.get_size() * shark.scale
+	var shark_size = shark.get_sprite_size()
 	shark.global_position.x = clamp(shark.global_position.x, left_edge, right_edge - shark_size.x)
 
 	#print("shark ", shark.global_position.y)
@@ -178,7 +157,7 @@ func start_moving(delta):
 	var left_edge = viewport_rect.position.x
 	var right_edge = viewport_rect.position.x + viewport_rect.size.x
 	
-	var shark_width = shark.texture.get_width()
+	var shark_width = (shark.get_sprite_texture()).get_width()
 	shark.global_position.x += speed * direction * delta
 	
 	# Shark width needed so it doesnt go off the right edge
@@ -199,7 +178,7 @@ func _on_timer_timeout():
 		
 		direction = rng.randi_range(0, 1) * 2 - 1
 		timer.start()  # Start the wait phase
-		print("duration ", duration)
+		#print("duration ", duration)
 	
 	elif timer_state == TimerState.WAITING:
 		# Transition back to running state
@@ -211,7 +190,7 @@ func _on_timer_timeout():
 		
 		direction = get_direction()
 		timer.start()  # Restart the timer
-		print("duration ", duration)
+		#print("duration ", duration)
 
 func _on_delay_timer_timeout():
 	if timer.is_stopped() and is_on_ground and not is_dragging:
@@ -220,12 +199,12 @@ func _on_delay_timer_timeout():
 		timer.start()
 		print("Timer restarted after dragging stopped")
 
-	else:
-		timer_state = TimerState.RUNNING
-		current_state = State.MOVING
-		direction = get_direction()
-		timer.start()
-		print("Start Timer")
+	#else:
+		#timer_state = TimerState.RUNNING
+		#current_state = State.MOVING
+		#direction = get_direction()
+		#timer.start()
+		#print("Start Timer")
 
 func _on_main_ground_level(pos: Variant, tb_height: int, sc_height: int) -> void:
 	ground_y = pos
@@ -234,28 +213,4 @@ func _on_main_ground_level(pos: Variant, tb_height: int, sc_height: int) -> void
 
 func get_direction():
 	return rng.randi_range(0, 1) * 2 - 1
-
-func _on_shark_gui_send_scale(size: int) -> void:
-	var original_shark_size = shark.texture.get_size() * shark.scale
-	var scale_factor = 0.1 # 10% scale change
-	
-	var window_height = get_viewport().get_visible_rect().size.y
-	var taskbar_y = window_height - taskbar_height
-	
-	#print("before ", shark.global_position.y)
-	if size == -1:
-		shark.scale *= (1 - scale_factor)
-	elif size == 1:
-		shark.scale *= (1 + scale_factor)
-	
-	var new_shark_size = shark.texture.get_size() * shark.scale
-	
-	#print("new shark scale ", new_shark_size)
-	
-	var new_ground_y = screen_height - taskbar_height - new_shark_size.y
-	
-	ground_y = new_ground_y
-	
-	if current_state != State.FLUNG:
-		shark.global_position.y = new_ground_y
 	

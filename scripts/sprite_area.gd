@@ -1,44 +1,45 @@
 extends Control
 
-@onready var shark = $SharkAnimated
+@onready var shark := $SharkAnimated
+
+signal pet_or_hit(is_pet: bool)
 
 # Drag and Fling
-var is_dragging = false
-var drag_offset: Vector2 = Vector2()
-var previous_mouse_position: Vector2 = Vector2()
-var mouse_velocity: Vector2 = Vector2.ZERO
+var is_dragging := false
+var drag_offset := Vector2()
+var previous_mouse_position := Vector2()
+var mouse_velocity := Vector2.ZERO
 
 # Shark Movement
-var direction: int = 1
-@export var gravity: int = 2500
-@export var air_friction: float = 0.98
-@export var ground_friction: float = 0.85
-var velocity: Vector2 = Vector2.ZERO
-@export var speed: float = 200.0
-var is_on_ground: bool = true
+var direction := 1
+@export var gravity := 2500
+@export var air_friction := 0.98
+@export var ground_friction := 0.85
+var velocity := Vector2.ZERO
+@export var speed := 200.0
+var is_on_ground := true
 var ground_y: int
 var taskbar_height: int
 var screen_height: int
  
 # Shark states
-enum State { IDLE, FLUNG, MOVING }
+enum State { IDLE, FLUNG, MOVING, PETHIT }
 var current_state = State.IDLE
 
 # Timer states
-@onready var timer: Timer = $Timer
-@onready var delay_timer: Timer = $DelayTimer
+@onready var timer := $Timer
+@onready var delay_timer := $DelayTimer
 enum TimerState { RUNNING, WAITING }
-var timer_state = TimerState.WAITING
+var timer_state := TimerState.WAITING
 
 # Petting
-var last_velocity = Vector2.ZERO
-var was_hovering_last_frame = false
-var petting_count = 0
-var petting_speed = 0
-@onready var petting_timer: Timer = $PettingTimer
+var is_pet: bool
+var petting_count := 0
+var petting_speed := 0
+@onready var petting_timer := $PettingTimer
 
 # Other
-var rng = RandomNumberGenerator.new()
+var rng := RandomNumberGenerator.new()
 
 func _ready():
 	timer.wait_time = 3
@@ -57,11 +58,6 @@ func _ready():
 	petting_timer.timeout.connect(_on_petting_timer_timeout)
 
 func _process(delta):
-	
-	var is_hovering_now = shark.is_hovered()
-	if is_hovering_now and not was_hovering_last_frame and not is_dragging:
-		check_interaction(last_velocity)
-	was_hovering_last_frame = is_hovering_now
 	
 	if is_dragging and not is_on_ground:
 		if not timer.is_stopped():
@@ -93,12 +89,11 @@ func _process(delta):
 				current_state = State.IDLE
 		
 		State.MOVING:
-			#if timer_state == TimerState.WAITING or is_dragging:
-				#current_state = State.IDLE
-			#else:
-				#apply_physics(delta) 
-				#start_moving(delta)
-			pass
+			if timer_state == TimerState.WAITING or is_dragging:
+				current_state = State.IDLE
+			else:
+				apply_physics(delta) 
+				start_moving(delta)
 
 func _input(event):
 	if event is InputEventMouseButton:
@@ -109,15 +104,14 @@ func _input(event):
 				current_state = State.IDLE
 				
 				velocity = Vector2.ZERO  # Reset velocity while dragging
-				mouse_velocity = velocity
-				
+				mouse_velocity = Vector2.ZERO
 				drag_offset = get_global_mouse_position() - global_position
-				previous_mouse_position = get_global_mouse_position()
 
 		elif event.button_index == MOUSE_BUTTON_LEFT and !event.pressed:
 			if is_dragging:
 				is_dragging = false
 				# Apply fling velocity
+				mouse_velocity = InputTracker.velocity
 				velocity = mouse_velocity
 				
 				# velocity.x has to be > 0 for it to not stick when drag release
@@ -126,6 +120,7 @@ func _input(event):
 				current_state = State.FLUNG
 		else:
 			if is_dragging:
+				mouse_velocity = InputTracker.velocity
 				velocity = mouse_velocity
 				
 			# velocity.x has to be > 0 for it to not stick when drag release
@@ -136,14 +131,8 @@ func _input(event):
 	elif event is InputEventMouseMotion and is_dragging:
 		var current_mouse_position = get_global_mouse_position()
 		global_position = current_mouse_position - drag_offset
-		
-		# Calculate mouse velocity (difference in mouse position per frame)
-		mouse_velocity = (current_mouse_position - previous_mouse_position) / get_process_delta_time()
-		previous_mouse_position = current_mouse_position
+		mouse_velocity = InputTracker.velocity
 		is_on_ground = false
-	
-	elif event is InputEventMouseMotion and !is_dragging:
-		last_velocity = event.velocity
 
 func apply_physics(delta):
 	velocity.y += gravity * delta
@@ -214,14 +203,14 @@ func _on_delay_timer_timeout():
 		timer_state = TimerState.RUNNING
 		direction = get_direction()
 		timer.start()
-		#print("Timer restarted after dragging stopped")
+		print("Timer restarted after dragging stopped")
 
-	#else:
-		#timer_state = TimerState.RUNNING
-		#current_state = State.MOVING
-		#direction = get_direction()
-		#timer.start()
-		#print("Start Timer")
+	else:
+		timer_state = TimerState.RUNNING
+		current_state = State.MOVING
+		direction = get_direction()
+		timer.start()
+		print("Start Timer")
 
 func _on_main_ground_level(pos: Variant, tb_height: int, sc_height: int) -> void:
 	ground_y = pos
@@ -232,23 +221,35 @@ func get_direction():
 	return rng.randi_range(0, 1) * 2 - 1
 
 func check_interaction(velocity: Vector2):
-	petting_speed += velocity.length()
+	if velocity.length() >= petting_speed:
+		petting_speed = velocity.length()
 	petting_count += 1
 	print("speed ", petting_speed)
 	
 	if petting_count == 1 and not is_dragging:
+		current_state = State.PETHIT
 		petting_timer.start()
 	elif petting_count == 2 and not is_dragging:
 		petting_timer.stop()
+		if petting_speed > 1000:
+			is_pet = false
+		elif petting_speed > 0:
+			is_pet = true
+			
+		print("speed final ", petting_speed)
 		petting_count = 0
-		if (petting_speed / 2) > 80:
-			print("hit")
-		elif (petting_speed / 2) > 0:
-			print("pet")
-		print("avg ", petting_speed / 2)
 		petting_speed = 0
-		
+		pet_or_hit.emit(is_pet)
 
 func _on_petting_timer_timeout():
 	petting_count = 0;
-	#print("restart petting")
+	current_state = State.IDLE
+
+func _on_main_pet_hit_interaction(mouse_velo: Vector2) -> void:
+	if mouse_velo.y >= 0:
+		print("pet or hit")
+		pass
+		#check_interaction(mouse_velo)
+
+func _on_shark_animated_pet_or_hit_anim_done() -> void:
+	current_state = State.IDLE

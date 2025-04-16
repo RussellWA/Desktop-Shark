@@ -52,6 +52,3 @@ script = ExtResource("6_tefeu")
 script = ExtResource("7_o6xl0")
 
 [connection signal="ground_level" from="." to="SpriteArea" method="_on_main_ground_level"]
-[connection signal="pet_hit_interaction" from="." to="SpriteArea" method="_on_main_pet_hit_interaction"]
-[connection signal="pet_or_hit" from="SpriteArea" to="SpriteArea/SharkAnimated" method="_on_sprite_area_pet_or_hit"]
-[connection signal="pet_or_hit_anim_done" from="SpriteArea/SharkAnimated" to="SpriteArea" method="_on_shark_animated_pet_or_hit_anim_done"]

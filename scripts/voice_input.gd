@@ -19,7 +19,7 @@ func _ready():
 		mic_player.bus = "Master"  # Make sure Master bus is not muted
 		add_child(mic_player)
 
-		mic_player.play()
+		#mic_player.play()
 		print("Microphone started!")
 
 func _exit_tree():

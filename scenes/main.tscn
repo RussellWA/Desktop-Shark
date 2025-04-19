@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://drag4pkgq4eou" path="res://scenes/shark_animated.tscn" id="4_tipki"]
 [ext_resource type="PackedScene" uid="uid://ddfx53xstrq0b" path="res://scenes/shark_gui.tscn" id="5_tbgi4"]
 [ext_resource type="Script" uid="uid://db6sbs1pcxicd" path="res://scripts/voice_input.gd" id="6_tefeu"]
-[ext_resource type="Script" uid="uid://cfh83sok0db30" path="res://scripts/SpeechRecognition.cs" id="7_o6xl0"]
+[ext_resource type="Script" uid="uid://cfh83sok0db30" path="res://scripts/SpeechRecognizer.cs" id="7_o6xl0"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_jyhfs")

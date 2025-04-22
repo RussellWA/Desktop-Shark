@@ -9,6 +9,16 @@ var was_hovering_last_frame = false
 func _ready():
 	shark_init_pos()
 	set_process_input(true)
+	
+	$VoiceInput._ready();
+	
+	# Connect to the recognizer's signals
+	var recognizer = $SpeechRecognition
+	recognizer.OnPartialResult.connect(_on_partial_result)
+	recognizer.OnFinalResult.connect(_on_final_result)
+	
+	# Start the speech recognizer
+	recognizer.StartSpeechRecognition()
 
 	var system_node = $SystemNode
 	if system_node:
@@ -35,3 +45,10 @@ func shark_init_pos():
 func get_taskbar_height():
 	var height = DisplayServer.screen_get_size().y - DisplayServer.screen_get_usable_rect().size.y
 	return height
+
+func _on_partial_result(text):
+	print("Partial: ", text)
+
+func _on_final_result(text):
+	print("Final: ", text)
+	$SpeechRecognition.StartSpeechRecognition()

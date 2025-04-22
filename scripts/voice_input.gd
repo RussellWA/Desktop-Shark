@@ -16,10 +16,10 @@ func _ready():
 		# Play mic input through an AudioStreamPlayer
 		mic_player = AudioStreamPlayer.new()
 		mic_player.stream = mic_stream
-		mic_player.bus = "Master"  # Make sure Master bus is not muted
+		mic_player.bus = "Record"  # Make sure Master bus is not muted
 		add_child(mic_player)
 
-		#mic_player.play()
+		mic_player.play()
 		print("Microphone started!")
 
 func _exit_tree():

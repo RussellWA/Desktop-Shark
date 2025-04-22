@@ -14,11 +14,11 @@ public partial class SpeechRecognizer : Node
 	[Export(PropertyHint.None, "The name of the bus that contains the record effect")]
 	string recordBusName = "Record";
 	[Export(PropertyHint.None, "Stop recognition after x milliseconds")]
-	long timeoutInMS = 10000;
+	long timeoutInMS = 30000;
 	[Export(PropertyHint.None, "Stop recognition if there is no change in output for x milliseconds.")]
-	long noChangeTimeoutInMS = 3000;
+	long noChangeTimeoutInMS = 10000;
 	[Export(PropertyHint.None, "Don't stop recongizer until timeout.")]
-	bool continuousRecognition = false;
+	bool continuousRecognition = true;
 	[Signal]
 	public delegate void OnPartialResultEventHandler(string partialResults);
 	[Signal]
